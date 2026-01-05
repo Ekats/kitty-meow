@@ -21,8 +21,9 @@ class Version(NamedTuple):
 
 
 appname: str = 'kitty'
-kitty_face = '🐱'
+kitty_face = '😺'  # kitty-meow fork
 version: Version = Version(0, 45, 0)
+fork_info: str = 'kitty-meow: fork with persistent selection fix (forked from github.com/kovidgoyal/kitty)'
 str_version: str = '.'.join(map(str, version))
 _plat = sys.platform.lower()
 is_macos: bool = 'darwin' in _plat

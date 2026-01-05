@@ -1,3 +1,18 @@
+= kitty-meow 😺 - kitty fork with persistent selection
+
+[NOTE]
+====
+**This is a fork of https://github.com/kovidgoyal/kitty[kitty]** with a fix for persistent text selection.
+
+*The Problem:* In upstream kitty, text selection gets cleared when new terminal output arrives. This makes it impossible to copy text from log tails, build output, or any continuously updating terminal.
+
+*The Fix:* This fork preserves selections when new output arrives, matching the behavior of xterm.js (VSCode/VSCodium terminal). Selections are only cleared when they scroll completely out of the history buffer.
+
+See https://github.com/kovidgoyal/kitty/issues/148[Issue #148] for the original feature request.
+====
+
+---
+
 = kitty - the fast, feature-rich, cross-platform, GPU based terminal
 
 If you live in the terminal, *kitty* is made for **you**!

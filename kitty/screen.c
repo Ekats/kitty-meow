@@ -318,6 +318,18 @@ index_selection(const Screen *self, Selections *selections, bool up, index_type 
             }
             if (s->end.y == 0) s->end_scrolled_by += 1;
             else s->end.y--;
+
+            // PERSISTENT SELECTION FIX: Clear selection if it has scrolled completely
+            // out of the history buffer. This happens when both start and end have
+            // scrolled past the buffer capacity (i.e., the selected lines have been
+            // trimmed from history).
+            if (self->linebuf == self->main_linebuf) {
+                unsigned int buffer_size = self->historybuf->count;
+                if (s->start_scrolled_by > buffer_size && s->end_scrolled_by > buffer_size) {
+                    clear_selection(selections);
+                    return;
+                }
+            }
         } else {
             if (s->start.y >= self->lines - 1) s->start_scrolled_by -= 1;
             else {
@@ -698,24 +710,39 @@ continue_to_next_line(Screen *self) {
 }
 
 static bool
-selection_has_screen_line(const Selections *selections, const int y) {
+url_range_has_screen_line(const Selections *selections, const int y) {
+    // Check if line y intersects any URL range (used for URL highlight clearing)
     for (size_t i = 0; i < selections->count; i++) {
         const Selection *s = selections->items + i;
-        if (!is_selection_empty(s)) {
-            int start = (int)s->start.y - s->start_scrolled_by;
-            int end = (int)s->end.y - s->end_scrolled_by;
-            int top = MIN(start, end);
-            int bottom = MAX(start, end);
-            if (top <= y && y <= bottom) return true;
-        }
+        if (is_selection_empty(s)) continue;
+
+        int start = (int)s->start.y - s->start_scrolled_by;
+        int end = (int)s->end.y - s->end_scrolled_by;
+        int top = MIN(start, end);
+        int bottom = MAX(start, end);
+        if (top <= y && y <= bottom) return true;
     }
     return false;
 }
 
 static void
 clear_intersecting_selections(Screen *self, index_type y) {
-    if (selection_has_screen_line(&self->selections, y)) clear_selection(&self->selections);
-    if (selection_has_screen_line(&self->url_ranges, y)) clear_selection(&self->url_ranges);
+    // PERSISTENT SELECTION FIX: Don't clear user selections when new output arrives.
+    // This matches xterm.js/VSCode terminal behavior and allows users to select text
+    // from continuously updating terminals (log tails, build output, etc.)
+    //
+    // The selection coordinates are already adjusted by index_selection() when the
+    // screen scrolls, so the selection continues to track the same absolute buffer
+    // position. We only need to avoid clearing it when output happens to touch the
+    // same screen line.
+    //
+    // Selections will be cleared when:
+    // - User explicitly clears them
+    // - Selection scrolls completely out of the history buffer (handled in index_selection)
+    //
+    // URL ranges (transient hover highlights) should still be cleared when their
+    // content changes, as they are not user-initiated persistent selections.
+    if (url_range_has_screen_line(&self->url_ranges, y)) clear_selection(&self->url_ranges);
 }
 
 static void
