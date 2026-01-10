@@ -986,6 +986,9 @@ class Parser:
     def enable_audio_bell(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['enable_audio_bell'] = to_bool(val)
 
+    def enable_border_drag_resize(self, val: str, ans: dict[str, typing.Any]) -> None:
+        ans['enable_border_drag_resize'] = to_bool(val)
+
     def enabled_layouts(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['enabled_layouts'] = to_layout_names(val)
 
@@ -1288,6 +1291,9 @@ class Parser:
 
     def show_hyperlink_targets(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['show_hyperlink_targets'] = to_bool(val)
+
+    def show_window_close_button(self, val: str, ans: dict[str, typing.Any]) -> None:
+        ans['show_window_close_button'] = to_bool(val)
 
     def single_window_margin_width(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['single_window_margin_width'] = optional_edge_width(val)
