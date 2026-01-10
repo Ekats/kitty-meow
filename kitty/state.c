@@ -1235,6 +1235,7 @@ PYWRAP1(patch_global_colors) {
     P(scrollbar_handle_color); P(scrollbar_track_color);
     P(active_border_hover_color); P(inactive_border_hover_color);
     P(window_close_button_color); P(window_close_button_hover_color);
+    P(show_window_close_button); P(enable_border_drag_resize);
     if (configured) {
         P(background); P(url_color);
     }

@@ -351,6 +351,7 @@ option_names = (
     'dynamic_background_opacity',
     'editor',
     'enable_audio_bell',
+    'enable_border_drag_resize',
     'enabled_layouts',
     'env',
     'exe_search_path',
@@ -439,6 +440,7 @@ option_names = (
     'shell',
     'shell_integration',
     'show_hyperlink_targets',
+    'show_window_close_button',
     'single_window_margin_width',
     'single_window_padding_width',
     'startup_session',
@@ -567,6 +569,8 @@ class Options:
     inactive_border_hover_color: Color = Color(128, 128, 128)
     window_close_button_color: Color = Color(255, 85, 85)
     window_close_button_hover_color: Color = Color(255, 0, 0)
+    show_window_close_button: bool = True
+    enable_border_drag_resize: bool = True
     inactive_tab_background: Color = Color(153, 153, 153)
     inactive_tab_font_style: tuple[bool, bool] = (False, False)
     inactive_tab_foreground: Color = Color(68, 68, 68)

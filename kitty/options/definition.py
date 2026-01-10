@@ -1330,6 +1330,16 @@ opt('window_close_button_hover_color', '#ff0000',
     long_text='The background color for the close button when mouse hovers over it.'
     )
 
+opt('show_window_close_button', 'yes',
+    option_type='to_bool', ctype='bool',
+    long_text='Show a close button on split windows. The button appears in the top-right corner when there are multiple windows.'
+    )
+
+opt('enable_border_drag_resize', 'yes',
+    option_type='to_bool', ctype='bool',
+    long_text='Allow resizing splits by dragging the border between windows.'
+    )
+
 opt('inactive_text_alpha', '1.0',
     option_type='unit_float', ctype='float',
     long_text='''

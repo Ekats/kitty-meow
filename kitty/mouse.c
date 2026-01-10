@@ -152,19 +152,19 @@ update_border_hover_cursor(BorderHitType edge) {
     switch (edge) {
         case BORDER_HIT_N:
         case BORDER_HIT_S:
-            mouse_cursor_shape = NS_RESIZE_POINTER;
+            if (OPT(enable_border_drag_resize)) mouse_cursor_shape = NS_RESIZE_POINTER;
             break;
         case BORDER_HIT_E:
         case BORDER_HIT_W:
-            mouse_cursor_shape = EW_RESIZE_POINTER;
+            if (OPT(enable_border_drag_resize)) mouse_cursor_shape = EW_RESIZE_POINTER;
             break;
         case BORDER_HIT_NE:
         case BORDER_HIT_SW:
-            mouse_cursor_shape = NESW_RESIZE_POINTER;
+            if (OPT(enable_border_drag_resize)) mouse_cursor_shape = NESW_RESIZE_POINTER;
             break;
         case BORDER_HIT_NW:
         case BORDER_HIT_SE:
-            mouse_cursor_shape = NWSE_RESIZE_POINTER;
+            if (OPT(enable_border_drag_resize)) mouse_cursor_shape = NWSE_RESIZE_POINTER;
             break;
         case BORDER_HIT_CLOSE_BUTTON:
             mouse_cursor_shape = POINTER_POINTER;
@@ -1408,7 +1408,7 @@ mouse_event(const int button, int modifiers, int action) {
                     // Close button clicked
                     call_boss(close_window_by_id, "K", border_window->id);
                     debug("handled by border: close button\n");
-                } else {
+                } else if (OPT(enable_border_drag_resize)) {
                     // Start border drag
                     start_border_drag(border_window, mouse_x, mouse_y);
                     debug("handled by border: drag started edge=%d\n", border_hit);

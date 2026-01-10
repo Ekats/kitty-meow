@@ -921,6 +921,7 @@ scrollbar_color(Screen *screen, unsigned val) {
 static void
 draw_close_button(const UIRenderData *ui) {
     if (!ui->window) return;
+    if (!OPT(show_window_close_button)) return;  // Disabled in config
     if (ui->is_single_window) return;  // Only show when multiple windows
 
     const int btn_size = 20;
