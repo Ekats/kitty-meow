@@ -75,8 +75,8 @@ handle_border_drag(Window *w, double mouse_x, double mouse_y) {
     double cell_height = global_state.callback_os_window->fonts_data->fcm.cell_height;
 
     // Calculate how many cells have been moved
-    int h_cells = (int)(delta_x / (cell_width / 2));
-    int v_cells = (int)(delta_y / (cell_height / 2));
+    int h_cells = (int)(delta_x / cell_width);
+    int v_cells = (int)(delta_y / cell_height);
 
     int h_increment = 0, v_increment = 0;
 
@@ -84,12 +84,12 @@ handle_border_drag(Window *w, double mouse_x, double mouse_y) {
         h_increment = (edge == BORDER_HIT_E || edge == BORDER_HIT_NE || edge == BORDER_HIT_SE)
                       ? h_cells : -h_cells;
         // Only consume the integer cell movement
-        w->border_hover.drag_start_x += h_cells * (cell_width / 2);
+        w->border_hover.drag_start_x += h_cells * cell_width;
     }
     if (resize_vertical && v_cells != 0) {
         v_increment = (edge == BORDER_HIT_S || edge == BORDER_HIT_SE || edge == BORDER_HIT_SW)
                       ? v_cells : -v_cells;
-        w->border_hover.drag_start_y += v_cells * (cell_height / 2);
+        w->border_hover.drag_start_y += v_cells * cell_height;
     }
 
     if (h_increment != 0) {

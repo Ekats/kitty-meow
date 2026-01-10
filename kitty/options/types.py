@@ -556,6 +556,7 @@ class Options:
     dynamic_background_opacity: bool = False
     editor: str = '.'
     enable_audio_bell: bool = True
+    enable_border_drag_resize: bool = True
     enabled_layouts: list[str] = ['fat', 'grid', 'horizontal', 'splits', 'stack', 'tall', 'vertical']
     file_transfer_confirmation_bypass: str = ''
     focus_follows_mouse: bool = False
@@ -567,10 +568,6 @@ class Options:
     hide_window_decorations: int = 0
     inactive_border_color: Color = Color(204, 204, 204)
     inactive_border_hover_color: Color = Color(128, 128, 128)
-    window_close_button_color: Color = Color(255, 85, 85)
-    window_close_button_hover_color: Color = Color(255, 0, 0)
-    show_window_close_button: bool = True
-    enable_border_drag_resize: bool = True
     inactive_tab_background: Color = Color(153, 153, 153)
     inactive_tab_font_style: tuple[bool, bool] = (False, False)
     inactive_tab_foreground: Color = Color(68, 68, 68)
@@ -637,6 +634,7 @@ class Options:
     shell: str = '.'
     shell_integration: frozenset[str] = frozenset({'enabled'})
     show_hyperlink_targets: bool = False
+    show_window_close_button: bool = True
     single_window_margin_width: FloatEdges = FloatEdges(left=-1.0, top=-1.0, right=-1.0, bottom=-1.0)
     single_window_padding_width: FloatEdges = FloatEdges(left=-1.0, top=-1.0, right=-1.0, bottom=-1.0)
     startup_session: str | None = None
@@ -681,6 +679,8 @@ class Options:
     wheel_scroll_multiplier: float = 5.0
     window_alert_on_bell: bool = True
     window_border_width: tuple[float, str] = (0.5, 'pt')
+    window_close_button_color: Color = Color(255, 85, 85)
+    window_close_button_hover_color: Color = Color(255, 0, 0)
     window_logo_alpha: float = 0.5
     window_logo_path: str | None = None
     window_logo_position: choices_for_window_logo_position = 'bottom-right'

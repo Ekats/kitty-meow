@@ -838,6 +838,84 @@ convert_from_opts_bell_border_color(PyObject *py_opts, Options *opts) {
 }
 
 static void
+convert_from_python_active_border_hover_color(PyObject *val, Options *opts) {
+    opts->active_border_hover_color = color_as_int(val);
+}
+
+static void
+convert_from_opts_active_border_hover_color(PyObject *py_opts, Options *opts) {
+    PyObject *ret = PyObject_GetAttrString(py_opts, "active_border_hover_color");
+    if (ret == NULL) return;
+    convert_from_python_active_border_hover_color(ret, opts);
+    Py_DECREF(ret);
+}
+
+static void
+convert_from_python_inactive_border_hover_color(PyObject *val, Options *opts) {
+    opts->inactive_border_hover_color = color_as_int(val);
+}
+
+static void
+convert_from_opts_inactive_border_hover_color(PyObject *py_opts, Options *opts) {
+    PyObject *ret = PyObject_GetAttrString(py_opts, "inactive_border_hover_color");
+    if (ret == NULL) return;
+    convert_from_python_inactive_border_hover_color(ret, opts);
+    Py_DECREF(ret);
+}
+
+static void
+convert_from_python_window_close_button_color(PyObject *val, Options *opts) {
+    opts->window_close_button_color = color_as_int(val);
+}
+
+static void
+convert_from_opts_window_close_button_color(PyObject *py_opts, Options *opts) {
+    PyObject *ret = PyObject_GetAttrString(py_opts, "window_close_button_color");
+    if (ret == NULL) return;
+    convert_from_python_window_close_button_color(ret, opts);
+    Py_DECREF(ret);
+}
+
+static void
+convert_from_python_window_close_button_hover_color(PyObject *val, Options *opts) {
+    opts->window_close_button_hover_color = color_as_int(val);
+}
+
+static void
+convert_from_opts_window_close_button_hover_color(PyObject *py_opts, Options *opts) {
+    PyObject *ret = PyObject_GetAttrString(py_opts, "window_close_button_hover_color");
+    if (ret == NULL) return;
+    convert_from_python_window_close_button_hover_color(ret, opts);
+    Py_DECREF(ret);
+}
+
+static void
+convert_from_python_show_window_close_button(PyObject *val, Options *opts) {
+    opts->show_window_close_button = PyObject_IsTrue(val);
+}
+
+static void
+convert_from_opts_show_window_close_button(PyObject *py_opts, Options *opts) {
+    PyObject *ret = PyObject_GetAttrString(py_opts, "show_window_close_button");
+    if (ret == NULL) return;
+    convert_from_python_show_window_close_button(ret, opts);
+    Py_DECREF(ret);
+}
+
+static void
+convert_from_python_enable_border_drag_resize(PyObject *val, Options *opts) {
+    opts->enable_border_drag_resize = PyObject_IsTrue(val);
+}
+
+static void
+convert_from_opts_enable_border_drag_resize(PyObject *py_opts, Options *opts) {
+    PyObject *ret = PyObject_GetAttrString(py_opts, "enable_border_drag_resize");
+    if (ret == NULL) return;
+    convert_from_python_enable_border_drag_resize(ret, opts);
+    Py_DECREF(ret);
+}
+
+static void
 convert_from_python_inactive_text_alpha(PyObject *val, Options *opts) {
     opts->inactive_text_alpha = PyFloat_AsFloat(val);
 }
@@ -1473,6 +1551,18 @@ convert_opts_from_python_opts(PyObject *py_opts, Options *opts) {
     convert_from_opts_inactive_border_color(py_opts, opts);
     if (PyErr_Occurred()) return false;
     convert_from_opts_bell_border_color(py_opts, opts);
+    if (PyErr_Occurred()) return false;
+    convert_from_opts_active_border_hover_color(py_opts, opts);
+    if (PyErr_Occurred()) return false;
+    convert_from_opts_inactive_border_hover_color(py_opts, opts);
+    if (PyErr_Occurred()) return false;
+    convert_from_opts_window_close_button_color(py_opts, opts);
+    if (PyErr_Occurred()) return false;
+    convert_from_opts_window_close_button_hover_color(py_opts, opts);
+    if (PyErr_Occurred()) return false;
+    convert_from_opts_show_window_close_button(py_opts, opts);
+    if (PyErr_Occurred()) return false;
+    convert_from_opts_enable_border_drag_resize(py_opts, opts);
     if (PyErr_Occurred()) return false;
     convert_from_opts_inactive_text_alpha(py_opts, opts);
     if (PyErr_Occurred()) return false;

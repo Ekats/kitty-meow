@@ -1038,12 +1038,6 @@ class Parser:
     def inactive_border_hover_color(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['inactive_border_hover_color'] = to_color(val)
 
-    def window_close_button_color(self, val: str, ans: dict[str, typing.Any]) -> None:
-        ans['window_close_button_color'] = to_color(val)
-
-    def window_close_button_hover_color(self, val: str, ans: dict[str, typing.Any]) -> None:
-        ans['window_close_button_hover_color'] = to_color(val)
-
     def inactive_tab_background(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['inactive_tab_background'] = to_color(val)
 
@@ -1474,6 +1468,12 @@ class Parser:
 
     def window_border_width(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['window_border_width'] = window_border_width(val)
+
+    def window_close_button_color(self, val: str, ans: dict[str, typing.Any]) -> None:
+        ans['window_close_button_color'] = to_color(val)
+
+    def window_close_button_hover_color(self, val: str, ans: dict[str, typing.Any]) -> None:
+        ans['window_close_button_hover_color'] = to_color(val)
 
     def window_logo_alpha(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['window_logo_alpha'] = unit_float(val)
