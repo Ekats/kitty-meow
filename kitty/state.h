@@ -62,6 +62,7 @@ typedef struct Options {
     char_type *select_by_word_characters;
     char_type *select_by_word_characters_forward;
     color_type url_color, background, foreground, active_border_color, inactive_border_color, bell_border_color, tab_bar_background, tab_bar_margin_color;
+    color_type active_border_hover_color, inactive_border_hover_color, window_close_button_color, window_close_button_hover_color;
     monotonic_t repaint_delay, input_delay;
     bool focus_follows_mouse;
     unsigned int hide_window_decorations;
@@ -230,6 +231,15 @@ typedef struct Window {
         double drag_start_scrolled_by;
         bool is_hovering;
     } scrollbar;
+    struct {
+        bool is_hovering;
+        int edge;  // 0=none, 1=N, 2=S, 3=E, 4=W, 5=NE, 6=NW, 7=SE, 8=SW
+        bool on_close_button;
+        struct { unsigned int left, top, right, bottom; } close_button_rect;
+        bool is_dragging;
+        double drag_start_x, drag_start_y;
+        int drag_edge;  // which edge we started dragging from
+    } border_hover;
 } Window;
 
 typedef struct BorderRect {
@@ -365,6 +375,8 @@ typedef struct GlobalState {
     struct { double x, y; } default_dpi;
     id_type active_drag_in_window, tracked_drag_in_window, mouse_hover_in_window;
     int active_drag_button, tracked_drag_button;
+    id_type border_drag_window_id;
+    int border_drag_edge;
     CloseRequest quit_request;
     bool redirect_mouse_handling;
     WindowLogoTable *all_window_logos;

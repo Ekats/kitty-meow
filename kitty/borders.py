@@ -6,7 +6,7 @@ from enum import IntFlag
 from functools import partial
 from typing import NamedTuple
 
-from .fast_data_types import BORDERS_PROGRAM, current_focused_os_window_id, get_options, init_borders_program, set_borders_rects
+from .fast_data_types import BORDERS_PROGRAM, current_focused_os_window_id, get_options, init_borders_program, set_borders_rects, set_window_close_button_rect
 from .shaders import program_for
 from .typing_compat import LayoutType
 from .utils import color_as_int
@@ -15,7 +15,8 @@ from .window_list import WindowGroup, WindowList
 
 class BorderColor(IntFlag):
     # These are indices into the array of colors in the border vertex shader
-    default_bg, active, inactive, window_bg, bell, tab_bar_bg, tab_bar_margin_color, tab_bar_left_edge_color, tab_bar_right_edge_color = range(9)
+    default_bg, active, inactive, window_bg, bell, tab_bar_bg, tab_bar_margin_color, tab_bar_left_edge_color, tab_bar_right_edge_color, \
+    active_hover, inactive_hover, close_button, close_button_hover = range(13)
 
 
 class Border(NamedTuple):
@@ -111,6 +112,9 @@ class Borders:
         if opts.draw_window_borders_for_single_window and num_visible_groups == 1:
             os_window_focused = current_focused_os_window_id() == self.os_window_id
 
+        # Close button size in pixels (must fit in padding area)
+        close_btn_size = 16
+
         for i, wg in enumerate(groups):
             window_bg = color_as_int(wg.default_bg)
             window_bg = (window_bg << 8) | BorderColor.window_bg
@@ -121,6 +125,9 @@ class Borders:
                 else:
                     color = BorderColor.bell if wg.needs_attention else BorderColor.inactive
                 add_borders(rects, color, wg)
+
+            # Close button now rendered in shaders.c (draw_close_button) on top of content
+            # Mouse rect is also set in shaders.c via window->border_hover.close_button_rect
 
         if draw_minimal_borders:
             for border_line in current_layout.get_minimal_borders(all_windows):

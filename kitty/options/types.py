@@ -41,6 +41,7 @@ choices_for_window_logo_position = choices_for_placement_strategy
 option_names = (
     'action_alias',
     'active_border_color',
+    'active_border_hover_color',
     'active_tab_background',
     'active_tab_font_style',
     'active_tab_foreground',
@@ -364,6 +365,7 @@ option_names = (
     'forward_stdio',
     'hide_window_decorations',
     'inactive_border_color',
+    'inactive_border_hover_color',
     'inactive_tab_background',
     'inactive_tab_font_style',
     'inactive_tab_foreground',
@@ -483,6 +485,8 @@ option_names = (
     'wheel_scroll_multiplier',
     'window_alert_on_bell',
     'window_border_width',
+    'window_close_button_color',
+    'window_close_button_hover_color',
     'window_logo_alpha',
     'window_logo_path',
     'window_logo_position',
@@ -496,6 +500,7 @@ option_names = (
 
 class Options:
     active_border_color: kitty.fast_data_types.Color | None = Color(0, 255, 0)
+    active_border_hover_color: Color = Color(90, 247, 142)
     active_tab_background: Color = Color(238, 238, 238)
     active_tab_font_style: tuple[bool, bool] = (True, True)
     active_tab_foreground: Color = Color(0, 0, 0)
@@ -559,6 +564,9 @@ class Options:
     forward_stdio: bool = False
     hide_window_decorations: int = 0
     inactive_border_color: Color = Color(204, 204, 204)
+    inactive_border_hover_color: Color = Color(128, 128, 128)
+    window_close_button_color: Color = Color(255, 85, 85)
+    window_close_button_hover_color: Color = Color(255, 0, 0)
     inactive_tab_background: Color = Color(153, 153, 153)
     inactive_tab_font_style: tuple[bool, bool] = (False, False)
     inactive_tab_foreground: Color = Color(68, 68, 68)

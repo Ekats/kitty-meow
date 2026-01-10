@@ -36,6 +36,9 @@ class Parser:
     def active_border_color(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['active_border_color'] = to_color_or_none(val)
 
+    def active_border_hover_color(self, val: str, ans: dict[str, typing.Any]) -> None:
+        ans['active_border_hover_color'] = to_color(val)
+
     def active_tab_background(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['active_tab_background'] = to_color(val)
 
@@ -1028,6 +1031,15 @@ class Parser:
 
     def inactive_border_color(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['inactive_border_color'] = to_color(val)
+
+    def inactive_border_hover_color(self, val: str, ans: dict[str, typing.Any]) -> None:
+        ans['inactive_border_hover_color'] = to_color(val)
+
+    def window_close_button_color(self, val: str, ans: dict[str, typing.Any]) -> None:
+        ans['window_close_button_color'] = to_color(val)
+
+    def window_close_button_hover_color(self, val: str, ans: dict[str, typing.Any]) -> None:
+        ans['window_close_button_hover_color'] = to_color(val)
 
     def inactive_tab_background(self, val: str, ans: dict[str, typing.Any]) -> None:
         ans['inactive_tab_background'] = to_color(val)

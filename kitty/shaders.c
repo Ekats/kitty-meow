@@ -37,6 +37,7 @@ typedef struct UIRenderData {
     WindowLogoRenderData *window_logo;
     float bg_alpha, inactive_text_alpha;
     bool has_background_image;
+    bool is_single_window;
     color_type background_color; // RGB only
 } UIRenderData;
 
@@ -918,6 +919,37 @@ scrollbar_color(Screen *screen, unsigned val) {
 }
 
 static void
+draw_close_button(const UIRenderData *ui) {
+    if (!ui->window) return;
+    if (ui->is_single_window) return;  // Only show when multiple windows
+
+    const int btn_size = 20;
+    GLsizei btn_left = ui->screen_left + ui->screen_width - btn_size - 4;
+    GLsizei btn_top = ui->screen_top + 4;
+
+    save_viewport_using_top_left_origin(btn_left, btn_top, btn_size, btn_size,
+                                        ui->full_framebuffer_height);
+
+    bind_program(TINT_PROGRAM);
+    // Brighter red on hover
+    if (ui->window->border_hover.on_close_button) {
+        glUniform4f(tint_program_layout.uniforms.tint_color, 1.0f, 0.3f, 0.3f, 1.0f);  // Lighter red
+    } else {
+        glUniform4f(tint_program_layout.uniforms.tint_color, 0.8f, 0.1f, 0.1f, 1.0f);  // Darker red
+    }
+    glUniform4f(tint_program_layout.uniforms.edges, -1.f, 1.f, 1.f, -1.f);
+    draw_quad(true, 0);
+
+    restore_viewport();
+
+    // Store for mouse detection
+    ui->window->border_hover.close_button_rect.left = btn_left;
+    ui->window->border_hover.close_button_rect.top = btn_top;
+    ui->window->border_hover.close_button_rect.right = btn_left + btn_size;
+    ui->window->border_hover.close_button_rect.bottom = btn_top + btn_size;
+}
+
+static void
 draw_scrollbar(const UIRenderData *ui) {
     Screen *screen = ui->screen;
     Window *window = ui->window;
@@ -1109,6 +1141,7 @@ draw_cells_with_layers(const UIRenderData *ui, ssize_t vao_idx) {
 
     draw_visual_bell(ui);
     draw_scrollbar(ui);
+    draw_close_button(ui);
     draw_hyperlink_target(ui);
     draw_window_number(ui);
 }
@@ -1169,7 +1202,7 @@ draw_cells(const WindowRenderData *srd, OSWindow *os_window, bool is_active_wind
         .full_framebuffer_width = os_window->viewport_width, .full_framebuffer_height = os_window->viewport_height,
         .window = window, .screen = screen, .os_window = os_window, .grd = grman_render_data(grman), .window_logo = wl,
         .inactive_text_alpha = current_inactive_text_alpha, .has_background_image = has_bgimage(os_window),
-        .background_color = default_bg, .bg_alpha=effective_os_window_alpha(os_window),
+        .is_single_window = is_single_window, .background_color = default_bg, .bg_alpha=effective_os_window_alpha(os_window),
     };
     screen->reload_all_gpu_data = false;
     save_viewport_using_top_left_origin(
@@ -1221,10 +1254,12 @@ draw_borders(ssize_t vao_idx, unsigned int num_border_rects, BorderRect *rect_bu
         unmap_vao_buffer(vao_idx, 0);
     }
     color_type default_bg = (num_visible_windows > 1 && !all_windows_have_same_bg) ? OPT(background) : active_window_bg;
-    GLuint colors[9] = {
+    GLuint colors[13] = {
         default_bg, OPT(active_border_color), OPT(inactive_border_color), 0,
         OPT(bell_border_color), OPT(tab_bar_background), OPT(tab_bar_margin_color),
-        w->tab_bar_edge_color.left, w->tab_bar_edge_color.right
+        w->tab_bar_edge_color.left, w->tab_bar_edge_color.right,
+        OPT(active_border_hover_color), OPT(inactive_border_hover_color),
+        0xff5555, 0xff0000  // hardcoded close button colors for testing
     };
     glUniform1uiv(border_program_layout.uniforms.colors, arraysz(colors), colors);
     glUniform1f(border_program_layout.uniforms.background_opacity, background_opacity);

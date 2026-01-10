@@ -566,6 +566,9 @@ cursor_pos_callback(GLFWwindow *w, double x, double y) {
     global_state.callback_os_window->mouse_x = x * global_state.callback_os_window->viewport_x_ratio;
     global_state.callback_os_window->mouse_y = y * global_state.callback_os_window->viewport_y_ratio;
     global_state.callback_os_window->has_received_cursor_pos_event = true;
+    // Sync left button state with GLFW (in case we missed a release event)
+    global_state.callback_os_window->mouse_button_pressed[GLFW_MOUSE_BUTTON_LEFT] =
+        glfwGetMouseButton(w, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
     if (is_window_ready_for_callbacks()) mouse_event(-1, mods_at_last_key_or_button_event, -1);
     request_tick_callback();
     global_state.callback_os_window = NULL;

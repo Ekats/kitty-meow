@@ -9,7 +9,11 @@
 #define TAB_BAR_MARGIN_COLOR 6
 #define TAB_BAR_EDGE_LEFT_COLOR 7
 #define TAB_BAR_EDGE_RIGHT_COLOR 8
-uniform uint colors[9];
+#define ACTIVE_HOVER_COLOR 9
+#define INACTIVE_HOVER_COLOR 10
+#define CLOSE_BUTTON_COLOR 11
+#define CLOSE_BUTTON_HOVER_COLOR 12
+uniform uint colors[13];
 uniform float background_opacity;
 uniform float gamma_lut[256];
 
@@ -54,7 +58,9 @@ void main() {
     color3 = if_one_then(is_window_bg, window_bg, color3);
     // Actual border quads must be always drawn opaque
     float is_not_a_border = zero_or_one(abs(
-        (float(rc) - ACTIVE_BORDER_COLOR) * (float(rc) - INACTIVE_BORDER_COLOR) * (float(rc) - BELL_BORDER_COLOR)
+        (float(rc) - ACTIVE_BORDER_COLOR) * (float(rc) - INACTIVE_BORDER_COLOR) * (float(rc) - BELL_BORDER_COLOR) *
+        (float(rc) - ACTIVE_HOVER_COLOR) * (float(rc) - INACTIVE_HOVER_COLOR) *
+        (float(rc) - CLOSE_BUTTON_COLOR) * (float(rc) - CLOSE_BUTTON_HOVER_COLOR)
     ));
     float final_opacity = if_one_then(is_not_a_border, background_opacity, 1.);
     color_premul = vec4_premul(color3, final_opacity);

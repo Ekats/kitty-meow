@@ -331,7 +331,9 @@ class Pair:
         if is_horizontal == self.horizontal and not self.is_redundant:
             if which == 2:
                 increment *= -1
-            new_bias = max(0, min(self.bias + increment, 1))
+            # Minimum bias of 0.1 ensures each window gets at least 10% of the split
+            min_bias = 0.1
+            new_bias = max(min_bias, min(self.bias + increment, 1.0 - min_bias))
             if new_bias != self.bias:
                 self.bias = new_bias
                 return True

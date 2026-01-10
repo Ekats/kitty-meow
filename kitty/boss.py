@@ -1050,6 +1050,20 @@ class Boss:
     def close_window(self) -> None:
         self.mark_window_for_close(self.window_for_dispatch)
 
+    def close_window_by_id(self, window_id: int) -> None:
+        '''Close a window by its ID (called from C for close button clicks).'''
+        window = self.window_id_map.get(window_id)
+        if window:
+            self.mark_window_for_close(window)
+
+    def resize_window_by_id(self, window_id: int, increment: int, is_horizontal: bool) -> None:
+        '''Resize a window by its ID (called from C for border drag).'''
+        window = self.window_id_map.get(window_id)
+        if window:
+            tab = window.tabref()
+            if tab:
+                tab.resize_window_by(window_id, float(increment), is_horizontal)
+
     def close_windows_with_confirmation_msg(self, windows: Iterable[Window], active_window: Window | None = None) -> tuple[str, int]:
         num_running_programs = 0
         num_background_programs = 0

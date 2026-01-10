@@ -1003,6 +1003,19 @@ PYWRAP1(set_window_padding) {
     Py_RETURN_NONE;
 }
 
+PYWRAP1(set_window_close_button_rect) {
+    id_type os_window_id, tab_id, window_id;
+    unsigned int left, top, right, bottom;
+    PA("KKKIIII", &os_window_id, &tab_id, &window_id, &left, &top, &right, &bottom);
+    WITH_WINDOW(os_window_id, tab_id, window_id);
+        window->border_hover.close_button_rect.left = left;
+        window->border_hover.close_button_rect.top = top;
+        window->border_hover.close_button_rect.right = right;
+        window->border_hover.close_button_rect.bottom = bottom;
+    END_WITH_WINDOW;
+    Py_RETURN_NONE;
+}
+
 PYWRAP1(set_window_render_data) {
 #define B(name) &(g.name)
 #define S(name) &(g.spaces.name)
@@ -1220,6 +1233,8 @@ PYWRAP1(patch_global_colors) {
     P(active_border_color); P(inactive_border_color); P(bell_border_color); P(tab_bar_background);
     P(tab_bar_margin_color); P(macos_titlebar_color); P(wayland_titlebar_color);
     P(scrollbar_handle_color); P(scrollbar_track_color);
+    P(active_border_hover_color); P(inactive_border_hover_color);
+    P(window_close_button_color); P(window_close_button_hover_color);
     if (configured) {
         P(background); P(url_color);
     }
@@ -1524,6 +1539,7 @@ static PyMethodDef module_methods[] = {
     MW(set_tab_bar_render_data, METH_VARARGS),
     MW(set_window_render_data, METH_VARARGS),
     MW(set_window_padding, METH_VARARGS),
+    MW(set_window_close_button_rect, METH_VARARGS),
     MW(viewport_for_window, METH_VARARGS),
     MW(cell_size_for_window, METH_VARARGS),
     MW(os_window_has_background_image, METH_VARARGS),

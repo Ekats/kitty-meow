@@ -16,6 +16,164 @@ extern PyTypeObject Screen_Type;
 
 static MouseShape mouse_cursor_shape = TEXT_POINTER;
 typedef enum MouseActions { PRESS, RELEASE, DRAG, MOVE, LEAVE } MouseAction;
+
+// Border hit detection for drag-to-resize
+typedef enum {
+    BORDER_HIT_NONE = 0,
+    BORDER_HIT_N = 1,
+    BORDER_HIT_S = 2,
+    BORDER_HIT_E = 3,
+    BORDER_HIT_W = 4,
+    BORDER_HIT_NE = 5,
+    BORDER_HIT_NW = 6,
+    BORDER_HIT_SE = 7,
+    BORDER_HIT_SW = 8,
+    BORDER_HIT_CLOSE_BUTTON = 9
+} BorderHitType;
+
+// Forward declaration - window_for_id is defined later in file
+static Window* window_for_id(id_type window_id);
+
+static void
+start_border_drag(Window *w, double mouse_x, double mouse_y) {
+    if (!w) return;
+    w->border_hover.is_dragging = true;
+    w->border_hover.drag_start_x = mouse_x;
+    w->border_hover.drag_start_y = mouse_y;
+    w->border_hover.drag_edge = w->border_hover.edge;
+    global_state.border_drag_window_id = w->id;
+    global_state.border_drag_edge = w->border_hover.edge;
+}
+
+static void
+end_border_drag(Window *w) {
+    if (w) {
+        w->border_hover.is_dragging = false;
+        w->border_hover.drag_edge = 0;
+    }
+    global_state.border_drag_window_id = 0;
+    global_state.border_drag_edge = 0;
+}
+
+static void
+handle_border_drag(Window *w, double mouse_x, double mouse_y) {
+    if (!w || !w->border_hover.is_dragging) return;
+
+    double delta_x = mouse_x - w->border_hover.drag_start_x;
+    double delta_y = mouse_y - w->border_hover.drag_start_y;
+
+    int edge = w->border_hover.drag_edge;
+    bool resize_horizontal = (edge == BORDER_HIT_E || edge == BORDER_HIT_W ||
+                              edge == BORDER_HIT_NE || edge == BORDER_HIT_NW ||
+                              edge == BORDER_HIT_SE || edge == BORDER_HIT_SW);
+    bool resize_vertical = (edge == BORDER_HIT_N || edge == BORDER_HIT_S ||
+                            edge == BORDER_HIT_NE || edge == BORDER_HIT_NW ||
+                            edge == BORDER_HIT_SE || edge == BORDER_HIT_SW);
+
+    // Get cell size for increment calculation
+    double cell_width = global_state.callback_os_window->fonts_data->fcm.cell_width;
+    double cell_height = global_state.callback_os_window->fonts_data->fcm.cell_height;
+
+    // Calculate how many cells have been moved
+    int h_cells = (int)(delta_x / (cell_width / 2));
+    int v_cells = (int)(delta_y / (cell_height / 2));
+
+    int h_increment = 0, v_increment = 0;
+
+    if (resize_horizontal && h_cells != 0) {
+        h_increment = (edge == BORDER_HIT_E || edge == BORDER_HIT_NE || edge == BORDER_HIT_SE)
+                      ? h_cells : -h_cells;
+        // Only consume the integer cell movement
+        w->border_hover.drag_start_x += h_cells * (cell_width / 2);
+    }
+    if (resize_vertical && v_cells != 0) {
+        v_increment = (edge == BORDER_HIT_S || edge == BORDER_HIT_SE || edge == BORDER_HIT_SW)
+                      ? v_cells : -v_cells;
+        w->border_hover.drag_start_y += v_cells * (cell_height / 2);
+    }
+
+    if (h_increment != 0) {
+        call_boss(resize_window_by_id, "Kib", w->id, h_increment, 1);
+    }
+    if (v_increment != 0) {
+        call_boss(resize_window_by_id, "Kib", w->id, v_increment, 0);
+    }
+}
+
+// Forward declarations for window geometry
+static unsigned int window_left(Window *w);
+static unsigned int window_right(Window *w);
+static unsigned int window_top(Window *w);
+static unsigned int window_bottom(Window *w);
+
+static BorderHitType
+detect_border_edge(Window *w, double x, double y, int border_width) {
+    if (!w || !w->visible) return BORDER_HIT_NONE;
+
+    unsigned int left = window_left(w);
+    unsigned int right = window_right(w);
+    unsigned int top = window_top(w);
+    unsigned int bottom = window_bottom(w);
+
+    // Check if close button exists and is hit
+    if (w->border_hover.close_button_rect.right > w->border_hover.close_button_rect.left) {
+        if (x >= w->border_hover.close_button_rect.left && x <= w->border_hover.close_button_rect.right &&
+            y >= w->border_hover.close_button_rect.top && y <= w->border_hover.close_button_rect.bottom) {
+            return BORDER_HIT_CLOSE_BUTTON;
+        }
+    }
+
+    // Expand hit zone for corners
+    int corner_size = border_width * 2;
+    if (corner_size < 12) corner_size = 12;
+
+    // Check corners first (they have priority)
+    bool near_left = (x >= left - border_width && x < left + corner_size);
+    bool near_right = (x > right - corner_size && x <= right + border_width);
+    bool near_top = (y >= top - border_width && y < top + corner_size);
+    bool near_bottom = (y > bottom - corner_size && y <= bottom + border_width);
+
+    if (near_top && near_left) return BORDER_HIT_NW;
+    if (near_top && near_right) return BORDER_HIT_NE;
+    if (near_bottom && near_left) return BORDER_HIT_SW;
+    if (near_bottom && near_right) return BORDER_HIT_SE;
+
+    // Check edges
+    if (y >= top - border_width && y < top && x >= left && x <= right) return BORDER_HIT_N;
+    if (y > bottom && y <= bottom + border_width && x >= left && x <= right) return BORDER_HIT_S;
+    if (x >= left - border_width && x < left && y >= top && y <= bottom) return BORDER_HIT_W;
+    if (x > right && x <= right + border_width && y >= top && y <= bottom) return BORDER_HIT_E;
+
+    return BORDER_HIT_NONE;
+}
+
+static void
+update_border_hover_cursor(BorderHitType edge) {
+    switch (edge) {
+        case BORDER_HIT_N:
+        case BORDER_HIT_S:
+            mouse_cursor_shape = NS_RESIZE_POINTER;
+            break;
+        case BORDER_HIT_E:
+        case BORDER_HIT_W:
+            mouse_cursor_shape = EW_RESIZE_POINTER;
+            break;
+        case BORDER_HIT_NE:
+        case BORDER_HIT_SW:
+            mouse_cursor_shape = NESW_RESIZE_POINTER;
+            break;
+        case BORDER_HIT_NW:
+        case BORDER_HIT_SE:
+            mouse_cursor_shape = NWSE_RESIZE_POINTER;
+            break;
+        case BORDER_HIT_CLOSE_BUTTON:
+            mouse_cursor_shape = POINTER_POINTER;
+            break;
+        default:
+            break;
+    }
+}
+
 #define debug debug_input
 
 // Encoding of mouse events {{{
@@ -1064,6 +1222,45 @@ mouse_event(const int button, int modifiers, int action) {
         if (button < 0) { debug("%s x: %.1f y: %.1f ", "\x1b[36mMove\x1b[m", global_state.callback_os_window->mouse_x, global_state.callback_os_window->mouse_y); }
         else { debug("%s mouse_button: %d %s", action == GLFW_RELEASE ? "\x1b[32mRelease\x1b[m" : "\x1b[31mPress\x1b[m", button, format_mods(modifiers)); }
     }
+
+    // Handle ongoing border drag FIRST (before window_for_event check)
+    double mouse_x = global_state.callback_os_window->mouse_x;
+    double mouse_y = global_state.callback_os_window->mouse_y;
+    if (global_state.border_drag_window_id != 0) {
+        Window *drag_w = window_for_id(global_state.border_drag_window_id);
+        if (drag_w) {
+            // Check if left button was released (action == GLFW_RELEASE for button events)
+            if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+                end_border_drag(drag_w);
+                debug("border drag ended (release)\n");
+                if (mouse_cursor_shape != old_cursor) set_mouse_cursor(mouse_cursor_shape);
+                return;
+            }
+            // For move events (button == -1), check if left button is still pressed
+            if (button == -1) {
+                bool left_pressed = global_state.callback_os_window->mouse_button_pressed[GLFW_MOUSE_BUTTON_LEFT];
+                if (left_pressed) {
+                    handle_border_drag(drag_w, mouse_x, mouse_y);
+                    debug("border drag move\n");
+                    return;
+                } else {
+                    // Left button no longer pressed, end drag
+                    end_border_drag(drag_w);
+                    debug("border drag ended (button up)\n");
+                }
+            }
+            // Any other button press ends the drag
+            if (button >= 0 && button != GLFW_MOUSE_BUTTON_LEFT) {
+                end_border_drag(drag_w);
+                debug("border drag ended (other button)\n");
+            }
+        } else {
+            // Window was closed during drag
+            global_state.border_drag_window_id = 0;
+            global_state.border_drag_edge = 0;
+        }
+    }
+
     if (global_state.redirect_mouse_handling) {
         w = window_for_event(&window_idx, &in_tab_bar);
         call_boss(mouse_event, "OK iiii dd",
@@ -1146,18 +1343,90 @@ mouse_event(const int button, int modifiers, int action) {
         handle_tab_bar_mouse(button, modifiers, action);
         debug("handled by tab bar\n");
     } else if (w) {
+        // Check if mouse is over close button (for hover and click)
+        bool on_close_btn = false;
+        if (w->border_hover.close_button_rect.right > w->border_hover.close_button_rect.left) {
+            on_close_btn = (mouse_x >= w->border_hover.close_button_rect.left &&
+                           mouse_x <= w->border_hover.close_button_rect.right &&
+                           mouse_y >= w->border_hover.close_button_rect.top &&
+                           mouse_y <= w->border_hover.close_button_rect.bottom);
+        }
+
+        // Update hover state
+        if (on_close_btn != w->border_hover.on_close_button) {
+            w->border_hover.on_close_button = on_close_btn;
+            global_state.callback_os_window->needs_render = true;
+        }
+
+        // Handle click on close button
+        if (on_close_btn && button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+            call_boss(close_window_by_id, "K", w->id);
+            debug("close button clicked\n");
+            mouse_cursor_shape = POINTER_POINTER;
+            if (mouse_cursor_shape != old_cursor) set_mouse_cursor(mouse_cursor_shape);
+            return;
+        }
+
         debug("grabbed: %d\n", w->render_data.screen->modes.mouse_tracking_mode != 0);
         handle_event(w, button, modifiers, window_idx);
-    } else if (button == GLFW_MOUSE_BUTTON_LEFT && global_state.callback_os_window->mouse_button_pressed[button]) {
-        // initial click, clamp it to the closest window
-        w = closest_window_for_event(&window_idx);
-        if (w) {
-            clamp_to_window = true;
-            debug("grabbed: %d\n", w->render_data.screen->modes.mouse_tracking_mode != 0);
-            handle_event(w, button, modifiers, window_idx);
-            clamp_to_window = false;
-        } else debug("no window for event\n");
-    } else debug("\n");
+
+        // Restore pointer cursor if hovering close button (handle_event may have changed it)
+        if (on_close_btn) {
+            mouse_cursor_shape = POINTER_POINTER;
+        }
+    } else {
+        // Mouse is not over any window content - check borders
+        Tab *tab = global_state.callback_os_window->tabs + global_state.callback_os_window->active_tab;
+        int border_width = 8;  // Minimum border hit zone in pixels
+
+        Window *border_window = NULL;
+        BorderHitType border_hit = BORDER_HIT_NONE;
+
+        // Check all windows for border hit
+        for (unsigned int i = 0; i < tab->num_windows; i++) {
+            Window *win = &tab->windows[i];
+            BorderHitType hit = detect_border_edge(win, mouse_x, mouse_y, border_width);
+            if (hit != BORDER_HIT_NONE) {
+                border_window = win;
+                border_hit = hit;
+                window_idx = i;
+                break;
+            }
+        }
+
+        if (border_window && border_hit != BORDER_HIT_NONE) {
+            // Update hover state
+            border_window->border_hover.edge = border_hit;
+            border_window->border_hover.is_hovering = true;
+            border_window->border_hover.on_close_button = (border_hit == BORDER_HIT_CLOSE_BUTTON);
+
+            // Set cursor based on border edge
+            update_border_hover_cursor(border_hit);
+
+            if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+                if (border_hit == BORDER_HIT_CLOSE_BUTTON) {
+                    // Close button clicked
+                    call_boss(close_window_by_id, "K", border_window->id);
+                    debug("handled by border: close button\n");
+                } else {
+                    // Start border drag
+                    start_border_drag(border_window, mouse_x, mouse_y);
+                    debug("handled by border: drag started edge=%d\n", border_hit);
+                }
+            } else {
+                debug("handled by border: hover edge=%d\n", border_hit);
+            }
+        } else if (button == GLFW_MOUSE_BUTTON_LEFT && global_state.callback_os_window->mouse_button_pressed[button]) {
+            // initial click, clamp it to the closest window
+            w = closest_window_for_event(&window_idx);
+            if (w) {
+                clamp_to_window = true;
+                debug("grabbed: %d\n", w->render_data.screen->modes.mouse_tracking_mode != 0);
+                handle_event(w, button, modifiers, window_idx);
+                clamp_to_window = false;
+            } else debug("no window for event\n");
+        } else debug("\n");
+    }
     if (mouse_cursor_shape != old_cursor) set_mouse_cursor(mouse_cursor_shape);
 }
 

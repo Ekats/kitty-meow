@@ -1310,6 +1310,26 @@ opt('bell_border_color', '#ff5a00',
     long_text='The color for the border of inactive windows in which a bell has occurred.'
     )
 
+opt('active_border_hover_color', '#5af78e',
+    option_type='to_color', ctype='color_as_int',
+    long_text='The color for the border of the active window when mouse hovers over it.'
+    )
+
+opt('inactive_border_hover_color', '#808080',
+    option_type='to_color', ctype='color_as_int',
+    long_text='The color for the border of inactive windows when mouse hovers over them.'
+    )
+
+opt('window_close_button_color', '#ff5555',
+    option_type='to_color', ctype='color_as_int',
+    long_text='The background color for the close button on split windows.'
+    )
+
+opt('window_close_button_hover_color', '#ff0000',
+    option_type='to_color', ctype='color_as_int',
+    long_text='The background color for the close button when mouse hovers over it.'
+    )
+
 opt('inactive_text_alpha', '1.0',
     option_type='unit_float', ctype='float',
     long_text='''

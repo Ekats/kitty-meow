@@ -109,18 +109,18 @@ def draw_tab(
         if fill_width > 0:
             screen.draw(' ' * fill_width)
 
-        # Draw horizontal split button (⬒ = top/bottom stacked) at right
+        # Draw horizontal split button (top/bottom windows)
         hsplit_button_start = screen.cursor.x
         screen.cursor.bg = SPLIT_BG
         screen.cursor.fg = SPLIT_FG
-        screen.draw(' ⬒ ')
+        screen.draw(' 󰯋 ')
         hsplit_button_end = screen.cursor.x
 
-        # Draw vertical split button (⬓ = side by side) at right
+        # Draw vertical split button (side by side windows)
         vsplit_button_start = screen.cursor.x
         screen.cursor.bg = SPLIT_BG
         screen.cursor.fg = SPLIT_FG
-        screen.draw(' ⬓ ')
+        screen.draw(' 󰯌 ')
         vsplit_button_end = screen.cursor.x
 
         # Don't update end - keep it at + button position
