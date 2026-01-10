@@ -2,29 +2,12 @@
 
 [NOTE]
 ====
-**This is a fork of https://github.com/kovidgoyal/kitty[kitty]** with a fix for persistent text selection.
+**This is a fork of https://github.com/kovidgoyal/kitty[kitty]** with additional features:
 
-*The Problem:* In upstream kitty, text selection gets cleared when new terminal output arrives. This makes it impossible to copy text from log tails, build output, or any continuously updating terminal.
+*Persistent Selection:* Text selection is preserved when new terminal output arrives, matching xterm.js behavior. Selections only clear when scrolled out of history. See https://github.com/kovidgoyal/kitty/issues/148[Issue #148].
 
-*The Fix:* This fork preserves selections when new output arrives, matching the behavior of xterm.js (VSCode/VSCodium terminal). Selections are only cleared when they scroll completely out of the history buffer.
-
-See https://github.com/kovidgoyal/kitty/issues/148[Issue #148] for the original feature request.
+*Mouse-Friendly Splits:* Close button on split windows (top-right X) and drag-to-resize borders. Configure with `show_window_close_button` and `enable_border_drag_resize`.
 ====
-
-== Mouse-Friendly Split Controls
-
-kitty-meow adds intuitive mouse controls for managing split windows:
-
-* **Close Button**: Each split window shows an X button in the top-right corner (when multiple splits exist)
-* **Drag-to-Resize**: Hover over borders between splits to get a resize cursor, then drag to resize
-
-Both features can be toggled in your config:
-
-[source,conf]
-----
-show_window_close_button yes   # Show/hide close button on splits
-enable_border_drag_resize yes  # Enable/disable drag-to-resize
-----
 
 ---
 
