@@ -934,6 +934,13 @@ mma('Paste from the primary selection',
     'paste_selection middle release ungrabbed paste_from_selection',
     )
 
+mma('Show context menu',
+    'context_menu right click ungrabbed show_context_menu',
+    long_text='''
+Show a popup context menu with copy, paste, and selection options.
+'''
+    )
+
 mma('Start selecting text',
     'start_simple_selection left press ungrabbed mouse_selection normal',
     )

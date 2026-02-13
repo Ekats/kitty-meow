@@ -33,3 +33,9 @@ bypy/virtual-machines.conf
 # AUR package folder
 aur-repo/
 aur/
+.mycelica.db
+.mycelica.db.*
+setup.log
+signal-desktop-keyring.gpg
+signal-desktop.sources
+CLAUDE.md

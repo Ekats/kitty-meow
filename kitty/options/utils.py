@@ -107,6 +107,17 @@ def send_text_parse(func: str, rest: str) -> FuncArgsType:
     return func, [mode, data]
 
 
+@func_with_args('copy_or_send')
+def copy_or_send_parse(func: str, rest: str) -> FuncArgsType:
+    data = b''
+    if rest:
+        try:
+            data = parse_send_text_bytes(rest)
+        except Exception:
+            log_error('Ignoring invalid copy_or_send string: ' + rest)
+    return func, [data]
+
+
 @func_with_args('send_key')
 def send_key(func: str, rest: str) -> FuncArgsType:
     return func, rest.split()

@@ -113,7 +113,7 @@ def draw_tab(
         hsplit_button_start = screen.cursor.x
         screen.cursor.bg = SPLIT_BG
         screen.cursor.fg = SPLIT_FG
-        screen.draw(' 󰯋 ')
+        screen.draw(' ▤ ')
         hsplit_button_end = screen.cursor.x
 
         # Draw vertical split button (side by side windows)

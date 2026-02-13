@@ -14,6 +14,7 @@ import (
 	"github.com/kovidgoyal/kitty/kittens/hints"
 	"github.com/kovidgoyal/kitty/kittens/hyperlinked_grep"
 	"github.com/kovidgoyal/kitty/kittens/icat"
+	"github.com/kovidgoyal/kitty/kittens/menu"
 	"github.com/kovidgoyal/kitty/kittens/notify"
 	"github.com/kovidgoyal/kitty/kittens/panel"
 	"github.com/kovidgoyal/kitty/kittens/query_terminal"
@@ -86,6 +87,8 @@ func KittyToolEntryPoints(root *cli.Command) {
 	diff.EntryPoint(root)
 	// notify
 	notify.EntryPoint(root)
+	// menu
+	menu.EntryPoint(root)
 	// themes
 	themes.EntryPoint(root)
 	themes.ParseEntryPoint(root)

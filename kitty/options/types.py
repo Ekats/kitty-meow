@@ -1056,6 +1056,8 @@ defaults.mouse_map = [
     MouseMapping(mods=5, grabbed=True, definition='discard_event'),
     # paste_selection
     MouseMapping(button=2, repeat_count=-1, definition='paste_from_selection'),
+    # context_menu
+    MouseMapping(button=1, repeat_count=-2, definition='show_context_menu'),
     # start_simple_selection
     MouseMapping(definition='mouse_selection normal'),
     # start_rectangle_selection

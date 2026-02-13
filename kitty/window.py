@@ -2215,6 +2215,14 @@ class Window:
             return False
         return True
 
+    @ac('cp', 'Copy the selected text from the active window to the clipboard, if no selection, send the specified bytes to the child process')
+    def copy_or_send(self, data: bytes) -> None:
+        text = self.text_for_selection()
+        if text:
+            set_clipboard_string(text)
+        elif data:
+            self.write_to_child(data)
+
     @ac('cp', 'Copy the selected text from the active window to the clipboard and clear selection, if no selection, send SIGINT (aka :kbd:`ctrl+c`)')
     def copy_and_clear_or_interrupt(self) -> None:
         self.copy_or_interrupt()

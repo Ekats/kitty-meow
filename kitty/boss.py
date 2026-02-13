@@ -2458,6 +2458,43 @@ class Boss:
             if text:
                 w.paste_with_actions(text)
 
+    @ac('mouse', 'Show a right-click context menu with copy/paste options')
+    def show_context_menu(self) -> None:
+        w = self.window_for_dispatch or self.active_window
+        if w is None:
+            return
+
+        def callback(res: dict[str, Any], window_id: int, boss: Boss) -> None:
+            response = res.get('response', '')
+            if not response:
+                return
+            if response == 'c':
+                boss.copy_to_clipboard()
+            elif response == 'p':
+                boss.paste_from_clipboard()
+            elif response == 'y':
+                boss.copy_to_clipboard_as_html()
+            elif response == 'a':
+                w = boss.window_id_map.get(window_id)
+                if w is not None:
+                    w.screen.select_all()
+            elif response == 'l':
+                w = boss.window_id_map.get(window_id)
+                if w is not None:
+                    w.clear_selection()
+
+        cmd = [
+            '-t', 'Edit',
+            '-i', 'c:Copy',
+            '-i', 'p:Paste',
+            '-i', 'y:Copy as HTML',
+            '-i', 'a:Select All',
+            '-i', 'l:Clear Selection',
+        ]
+        self.run_kitten_with_metadata(
+            'menu', cmd, window=w, custom_callback=callback, default_data={'response': ''}
+        )
+
     def set_primary_selection(self) -> None:
         w = self.active_window
         if w is not None and not w.destroyed:
