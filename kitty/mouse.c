@@ -437,7 +437,7 @@ cell_for_pos(Window *w, unsigned int *x, unsigned int *y, bool *in_left_half_of_
         mouse_x = MIN(MAX(mouse_x, left), right);
         mouse_y = MIN(MAX(mouse_y, top), bottom);
     }
-    if (mouse_x < left || mouse_y < top || mouse_x > right || mouse_y > bottom) return false;
+    if (mouse_x < left - w->padding.left || mouse_y < top - w->padding.top || mouse_x > right + w->padding.right || mouse_y > bottom + w->padding.bottom) return false;
     if (mouse_x >= g->right) {
         qx = screen->columns - 1;
         in_left_half = false;
@@ -1026,7 +1026,7 @@ static void
 handle_tab_bar_mouse(int button, int modifiers, int action) {
     send_mouse_leave_event_if_needed(0, modifiers);
     if (button > -1) {  // dont report motion events, as they are expensive and useless
-        call_boss(handle_click_on_tab, "Kdiii", global_state.callback_os_window->id, global_state.callback_os_window->mouse_x, button, modifiers, action);
+        call_boss(handle_click_on_tab, "Kddiii", global_state.callback_os_window->id, global_state.callback_os_window->mouse_x, global_state.callback_os_window->mouse_y, button, modifiers, action);
     }
 }
 

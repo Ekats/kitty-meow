@@ -704,7 +704,8 @@ class TabBar:
         s = self.screen
         available_width = tab_bar.width - 2 * self.margin_width
         ncells = max(4, available_width // cell_width)
-        s.resize(1, ncells)
+        num_lines = max(1, (tab_bar.bottom - tab_bar.top) // cell_height) if cell_height > 0 else 1
+        s.resize(num_lines, ncells)
         s.reset_mode(DECAWM)
         cell_area_width = ncells * cell_width
         available_width_for_left_margin = max(0, tab_bar.width - self.margin_width - cell_area_width)

@@ -601,7 +601,8 @@ os_window_regions(OSWindow *os_window, Region *central, Region *tab_bar) {
         long margin_outer = pt_to_px_for_os_window(OPT(tab_bar_margin_height.outer), os_window);
         long margin_inner = pt_to_px_for_os_window(OPT(tab_bar_margin_height.inner), os_window);
         central->left = 0; central->right = os_window->viewport_width;
-        unsigned tab_bar_height = os_window->fonts_data->fcm.cell_height + margin_inner + margin_outer;
+        unsigned tab_bar_lines = os_window->tab_bar_extra_line ? 2 : 1;
+        unsigned tab_bar_height = tab_bar_lines * os_window->fonts_data->fcm.cell_height + margin_inner + margin_outer;
         switch(OPT(tab_bar_edge)) {
             case TOP_EDGE:
                 central->top = tab_bar_height;
@@ -617,7 +618,7 @@ os_window_regions(OSWindow *os_window, Region *central, Region *tab_bar) {
                 break;
         }
         tab_bar->left = central->left; tab_bar->right = central->right;
-        tab_bar->bottom = tab_bar->top + os_window->fonts_data->fcm.cell_height;
+        tab_bar->bottom = tab_bar->top + tab_bar_lines * os_window->fonts_data->fcm.cell_height;
     } else {
         zero_at_ptr(tab_bar);
         central->left = 0; central->top = 0; central->right = os_window->viewport_width;
@@ -955,6 +956,20 @@ PYWRAP1(mark_tab_bar_dirty) {
     WITH_OS_WINDOW(os_window_id)
         os_window->has_too_few_tabs = !should_be_shown;
         os_window->tab_bar_data_updated = false;
+    END_WITH_OS_WINDOW
+    Py_RETURN_NONE;
+}
+
+PYWRAP1(set_tab_bar_extra_line) {
+    id_type os_window_id; int needs_extra;
+    PA("Kp", &os_window_id, &needs_extra);
+    WITH_OS_WINDOW(os_window_id)
+        bool new_val = needs_extra ? true : false;
+        if (os_window->tab_bar_extra_line != new_val) {
+            os_window->tab_bar_extra_line = new_val;
+            os_window->viewport_size_dirty = true;
+            os_window->tab_bar_data_updated = false;
+        }
     END_WITH_OS_WINDOW
     Py_RETURN_NONE;
 }
@@ -1550,6 +1565,7 @@ static PyMethodDef module_methods[] = {
     MW(set_os_window_chrome, METH_VARARGS),
     MW(focus_os_window, METH_VARARGS),
     MW(mark_tab_bar_dirty, METH_VARARGS),
+    MW(set_tab_bar_extra_line, METH_VARARGS),
     MW(is_tab_bar_visible, METH_VARARGS),
     MW(run_with_activation_token, METH_O),
     MW(change_background_opacity, METH_VARARGS),

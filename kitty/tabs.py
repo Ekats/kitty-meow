@@ -1513,7 +1513,7 @@ class TabManager:  # {{{
             ))
         return ans
 
-    def handle_click_on_tab(self, x: int, button: int, modifiers: int, action: int) -> None:
+    def handle_click_on_tab(self, x: int, y: int = 0, button: int = 0, modifiers: int = 0, action: int = 0) -> None:
         tab = self.tab_for_id(self.tab_bar.tab_id_at(x))
         now = monotonic()
         if tab is None:
